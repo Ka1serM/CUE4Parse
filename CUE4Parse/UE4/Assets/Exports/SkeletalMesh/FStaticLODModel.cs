@@ -163,7 +163,7 @@ public class FStaticLODModel
             if (FEditorObjectVersion.Get(Ar) >= FEditorObjectVersion.Type.SkeletalMeshBuildRefactor)
             {
                 //Editor builds only
-                var UserSectionsData = Ar.ReadMap(Ar.Read<int>, () => new FSkelMeshSourceSectionUserData(Ar));
+                var UserSectionsData = Ar.ReadMap(() => Ar.Read<int>(), () => new FSkelMeshSourceSectionUserData(Ar));
             }
 
             if (skelMeshVer < FSkeletalMeshCustomVersion.Type.SplitModelAndRenderData)
@@ -194,7 +194,7 @@ public class FStaticLODModel
             if (!stripDataFlags.IsEditorDataStripped() && FEditorObjectVersion.Get(Ar) >= FEditorObjectVersion.Type.SkeletalMeshBuildRefactor)
             {
                 //Editor builds only
-                var UserSectionsData = Ar.ReadMap(Ar.Read<int>, () => new FSkelMeshSourceSectionUserData(Ar));
+                var UserSectionsData = Ar.ReadMap(() => Ar.Read<int>(), () => new FSkelMeshSourceSectionUserData(Ar));
             }
 
             if (skelMeshVer < FSkeletalMeshCustomVersion.Type.SplitModelAndRenderData)

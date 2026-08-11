@@ -579,7 +579,7 @@ public partial class PakFileReader : AbstractAesVfsReader
             Ar.ReadFString,
             () => Ar.ReadTMap(
                 Ar.ReadFString,
-                Ar.Read<int>,
+                () => Ar.Read<int>(),
                 16, 4
             ),
             16, 56
