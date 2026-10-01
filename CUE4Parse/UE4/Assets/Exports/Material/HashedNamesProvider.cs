@@ -25,8 +25,17 @@ public sealed class HashedNamesProvider
                 return;
             }
 
+            // Read token by token: reflective deserialization into a generic collection
+            // fails under NativeAOT.
             using StreamReader reader = new(stream);
-            _hashedNames = JsonConvert.DeserializeObject<ConcurrentDictionary<ulong, string>>(reader.ReadToEnd()) ?? [];
+            using var json = new JsonTextReader(reader);
+            while (json.Read())
+            {
+                if (json.TokenType != JsonToken.PropertyName) continue;
+                var hash = ulong.Parse((string) json.Value!);
+                if (json.Read() && json.Value is string name)
+                    _hashedNames[hash] = name;
+            }
         }
         catch (Exception e)
         {

@@ -894,6 +894,7 @@ namespace CUE4Parse.FileProvider
             Files.Clear();
             VirtualPaths.Clear();
             Internationalization.Clear();
+            GameFile.ClearInternPools();
         }
     }
 }

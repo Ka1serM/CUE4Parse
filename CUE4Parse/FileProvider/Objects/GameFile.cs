@@ -147,6 +147,13 @@ public abstract class GameFile
 
     public override string ToString() => Path;
 
+    // The pools hold every directory of the mounted games; a disposed provider releases its own.
+    internal static void ClearInternPools()
+    {
+        _internedExtensions.Clear();
+        _internedDirectories.Clear();
+    }
+
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private static string Intern(ConcurrentDictionary<string, string> pool, string value) =>
         pool.GetOrAdd(value, static candidate => candidate);
