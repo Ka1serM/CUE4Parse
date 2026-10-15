@@ -288,14 +288,14 @@ public sealed class IoPackage : AbstractUePackage
         if (containerHeader != null)
         {
             var packageId = FPackageId.FromName(Name);
-            var storeEntryIdx = Array.IndexOf(containerHeader.PackageIds, packageId);
+            var storeEntryIdx = containerHeader.IndexOfPackage(packageId);
             if (storeEntryIdx != -1)
             {
                 storeEntry = containerHeader.StoreEntries[storeEntryIdx];
             }
             else
             {
-                var optionalSegmentStoreEntryIdx = Array.IndexOf(containerHeader.OptionalSegmentPackageIds, packageId);
+                var optionalSegmentStoreEntryIdx = containerHeader.IndexOfOptionalSegmentPackage(packageId);
                 if (optionalSegmentStoreEntryIdx != -1)
                 {
                     storeEntry = containerHeader.OptionalSegmentStoreEntries[optionalSegmentStoreEntryIdx];

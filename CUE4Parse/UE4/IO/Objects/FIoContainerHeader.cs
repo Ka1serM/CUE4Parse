@@ -74,6 +74,10 @@ namespace CUE4Parse.UE4.IO.Objects
         public FIoContainerHeaderSerialInfo SoftPackageReferencesSerialInfo;
         public FIoContainerHeaderSoftPackageReferences SoftPackageReferences;
 
+        // Index of each id in PackageIds and OptionalSegmentPackageIds. Every package load looks its store entry up.
+        private readonly Dictionary<FPackageId, int> _packageIndices;
+        private readonly Dictionary<FPackageId, int> _optionalSegmentPackageIndices;
+
         public FIoContainerHeader(FArchive Ar)
         {
             Version = Ar.Game >= GAME_UE5_0 ? EIoContainerHeaderVersion.Initial : EIoContainerHeaderVersion.BeforeVersionWasAdded;
@@ -127,6 +131,23 @@ namespace CUE4Parse.UE4.IO.Objects
             {
                 SoftPackageReferencesSerialInfo = new FIoContainerHeaderSerialInfo(Ar);
             }
+
+            _packageIndices = IndicesOf(PackageIds);
+            _optionalSegmentPackageIndices = IndicesOf(OptionalSegmentPackageIds ?? []);
+        }
+
+        /// <summary>The index of the id in PackageIds, or -1.</summary>
+        public int IndexOfPackage(FPackageId id) => _packageIndices.GetValueOrDefault(id, -1);
+
+        /// <summary>The index of the id in OptionalSegmentPackageIds, or -1.</summary>
+        public int IndexOfOptionalSegmentPackage(FPackageId id) => _optionalSegmentPackageIndices.GetValueOrDefault(id, -1);
+
+        // The first index of an id that occurs more than once, as Array.IndexOf gives.
+        private static Dictionary<FPackageId, int> IndicesOf(FPackageId[] ids)
+        {
+            var indices = new Dictionary<FPackageId, int>(ids.Length);
+            for (var i = 0; i < ids.Length; i++) indices.TryAdd(ids[i], i);
+            return indices;
         }
 
         private void ReadPackageIdsAndEntries(FArchive Ar, out FPackageId[] packageIds, out FFilePackageStoreEntry[] storeEntries)

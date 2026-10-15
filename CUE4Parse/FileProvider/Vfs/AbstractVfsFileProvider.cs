@@ -585,7 +585,7 @@ namespace CUE4Parse.FileProvider.Vfs
                 if (reader is not IoStoreReader ioReader || ioReader.ContainerHeader is not { StoreEntries.Length: > 0 } header)
                     continue;
 
-                var idx = Array.IndexOf(header.PackageIds, packageId);
+                var idx = header.IndexOfPackage(packageId);
                 if (idx != -1)
                 {
                     storeEntry = header.StoreEntries[idx];
