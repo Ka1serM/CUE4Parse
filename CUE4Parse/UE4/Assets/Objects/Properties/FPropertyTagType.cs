@@ -1,4 +1,5 @@
 using System.Collections;
+using System.Collections.Concurrent;
 using System.Reflection;
 using CUE4Parse.GameTypes.Borderlands4.Assets.Objects.Properties;
 using CUE4Parse.GameTypes.FN.Assets.Exports;
@@ -36,6 +37,9 @@ public abstract class FPropertyTagType<T> : FPropertyTagType
 [JsonConverter(typeof(FPropertyTagTypeConverter))]
 public abstract class FPropertyTagType
 {
+    // Reflection is slow under NativeAOT, and an array of structs asks once per element.
+    private static readonly ConcurrentDictionary<Type, bool> StructFallbackTypes = new();
+
     public abstract object? GenericValue { get; }
     public object? GetValue(Type type)
     {
@@ -51,7 +55,7 @@ public abstract class FPropertyTagType
         {
             case FPropertyTagType<FScriptStruct> structProp when type.IsInstanceOfType(structProp.Value!.StructType):
                 return structProp.Value.StructType;
-            case FPropertyTagType<FScriptStruct> {Value.StructType: FStructFallback fallback} when type.GetCustomAttribute<StructFallback>() != null:
+            case FPropertyTagType<FScriptStruct> {Value.StructType: FStructFallback fallback} when StructFallbackTypes.GetOrAdd(type, static t => t.GetCustomAttribute<StructFallback>() != null):
                 return fallback.MapToClass(type);
             case FPropertyTagType<UScriptArray> arrayProp when type.IsArray:
                 return CreateArray(type, arrayProp.Value!.Properties);

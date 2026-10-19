@@ -1,4 +1,6 @@
-﻿using CUE4Parse.UE4.Assets.Exports;
+﻿using System.Collections.Concurrent;
+using System.Reflection;
+using CUE4Parse.UE4.Assets.Exports;
 using CUE4Parse.UE4.Assets.Objects;
 
 namespace CUE4Parse.UE4.Assets.Utils
@@ -9,6 +11,7 @@ namespace CUE4Parse.UE4.Assets.Utils
     public static class StructFallbackUtil
     {
         public static ObjectMapper? ObjectMapper = new DefaultObjectMapper();
+        private static readonly ConcurrentDictionary<Type, ConstructorInfo?> DataConstructors = new();
 
         public static object? MapToClass(this FStructFallback? fallback, Type type)
         {
@@ -18,7 +21,7 @@ namespace CUE4Parse.UE4.Assets.Utils
             }
 
             object value;
-            var dataConstructor = type.GetConstructor(new[] { typeof(FStructFallback) });
+            var dataConstructor = DataConstructors.GetOrAdd(type, static t => t.GetConstructor(new[] { typeof(FStructFallback) }));
             if (dataConstructor != null)
             {
                 // Let the constructor with FStructFallback assign the data
