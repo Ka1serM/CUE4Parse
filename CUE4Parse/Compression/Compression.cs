@@ -1,3 +1,5 @@
+using BrotliSharpLib;
+
 using CUE4Parse.UE4.Exceptions;
 using CUE4Parse.UE4.Readers;
 
@@ -29,6 +31,13 @@ public static class Compression
         {
             using var decompressor = new Decompressor();
             return decompressor.TryUnwrap(source, destination, out written);
+        }, replace: true)
+        // The runtime's BrotliDecoder does not work in the browser, so every platform uses the managed decoder.
+        .Add(CompressionAlgorithm.Brotli, static (source, destination, out written) =>
+        {
+            var decompressed = Brotli.DecompressBuffer(source.ToArray(), 0, source.Length);
+            written = decompressed.Length;
+            return decompressed.AsSpan().TryCopyTo(destination);
         }, replace: true)
         .Build();
 
